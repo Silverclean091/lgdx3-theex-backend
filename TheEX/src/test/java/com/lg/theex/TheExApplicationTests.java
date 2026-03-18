@@ -1,4 +1,4 @@
-package com.LG.TheEX;
+package com.lg.theex;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
