@@ -1,4 +1,4 @@
-package com.lg.theex.domain.product.entity;
+package com.lg.theex.domain.mood.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

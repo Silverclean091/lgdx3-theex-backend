@@ -1,6 +1,7 @@
-package com.lg.theex.domain.product.entity;
+package com.lg.theex.domain.mood.entity;
 
 import com.lg.theex.domain.coffee.entity.CoffeeRecipeEntity;
+import com.lg.theex.domain.product.entity.ProductInfoEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
