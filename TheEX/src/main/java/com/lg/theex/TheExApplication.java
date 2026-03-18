@@ -1,4 +1,4 @@
-package com.LG.TheEX;
+package com.lg.theex;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
