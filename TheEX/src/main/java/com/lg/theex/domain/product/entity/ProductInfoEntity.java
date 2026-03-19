@@ -39,4 +39,8 @@ public class ProductInfoEntity {
         this.productNo = productNo;
         this.group = group;
     }
+
+    public void updateGroup(ProductGroupEntity group) {
+        this.group = group;
+    }
 }
