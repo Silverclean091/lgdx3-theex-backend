@@ -1,8 +1,14 @@
 package com.lg.theex.domain.mood.controller;
 
+import com.lg.theex.domain.mood.dto.request.CoffeeCustomRequestDTO;
+import com.lg.theex.domain.mood.dto.request.LightCustomRequestDTO;
 import com.lg.theex.domain.mood.dto.request.MoodCustomRequestDTO;
+import com.lg.theex.domain.mood.dto.request.SpeakerCustomRequestDTO;
 import com.lg.theex.domain.mood.dto.response.MoodCustomListResponseDTO;
+import com.lg.theex.domain.mood.service.CoffeeCustomService;
+import com.lg.theex.domain.mood.service.LightCustomService;
 import com.lg.theex.domain.mood.service.MoodCustomService;
+import com.lg.theex.domain.mood.service.SpeakerCustomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +29,37 @@ import java.util.Map;
 @RequestMapping("/api/mood")
 public class MoodCustomController {
 
+    private final CoffeeCustomService coffeeCustomService;
+    private final LightCustomService lightCustomService;
     private final MoodCustomService moodCustomService;
+    private final SpeakerCustomService speakerCustomService;
+
+    @PostMapping("/light-custom")
+    public ResponseEntity<Map<String, Long>> createLightCustom(
+            @RequestBody LightCustomRequestDTO requestDTO
+    ) {
+        Long lightId = lightCustomService.createLightCustom(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("lightId", lightId));
+    }
+
+    @PostMapping("/coffee-custom")
+    public ResponseEntity<Map<String, Long>> createCoffeeCustom(
+            @Valid @RequestBody CoffeeCustomRequestDTO requestDTO
+    ) {
+        Long coffeeCustomId = coffeeCustomService.createCoffeeCustom(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("coffeeCustomId", coffeeCustomId));
+    }
+
+    @PostMapping("/speaker-custom")
+    public ResponseEntity<Map<String, Long>> createSpeakerCustom(
+            @RequestBody SpeakerCustomRequestDTO requestDTO
+    ) {
+        Long speakerId = speakerCustomService.createSpeakerCustom(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("speakerId", speakerId));
+    }
 
     @PostMapping("/custom")
     public ResponseEntity<Map<String, Long>> createMoodCustom(
