@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lg.theex.domain.auth.entity.UserMoodListEntity;
 import com.lg.theex.domain.auth.entity.UsersInfoEntity;
+import com.lg.theex.domain.auth.repository.UserMoodListRepository;
 import com.lg.theex.domain.mood.dto.request.MoodCustomRequestDTO;
 import com.lg.theex.domain.mood.dto.request.MoodCustomProductRequestDTO;
 import com.lg.theex.domain.mood.dto.response.CoffeeCustomDetailResponseDTO;
@@ -22,7 +23,6 @@ import com.lg.theex.domain.mood.repository.LightCustomRepository;
 import com.lg.theex.domain.mood.repository.MoodColorsetRepository;
 import com.lg.theex.domain.mood.repository.MoodCustomRepository;
 import com.lg.theex.domain.mood.repository.SpeakerCustomRepository;
-import com.lg.theex.domain.mood.repository.UserMoodListRepository;
 import com.lg.theex.global.exception.ErrorCode;
 import com.lg.theex.global.exception.exceptionType.BadRequestException;
 import jakarta.persistence.EntityManager;
@@ -123,7 +123,7 @@ public class MoodCustomService {
         userMoodListRepository.save(userMoodList);
     }
 
-    private MoodCustomListResponseDTO toMoodCustomListResponseDTO(MoodCustomEntity moodCustom) {
+    public MoodCustomListResponseDTO toMoodCustomListResponseDTO(MoodCustomEntity moodCustom) {
         MoodCustomProductRequestDTO customProduct;
         try {
             customProduct = objectMapper.readValue(
@@ -136,6 +136,7 @@ public class MoodCustomService {
         }
 
         return new MoodCustomListResponseDTO(
+                moodCustom.getMoodId(),
                 moodCustom.getMoodName(),
                 new MoodCustomProductResponseDTO(
                         toLightCustomDetail(customProduct.lightCustom()),
