@@ -20,6 +20,7 @@ public class SpeakerCustomService {
                 .productCode(DEFAULT_PRODUCT_CODE)
                 .musicLink(requestDTO.musicLink())
                 .volume(requestDTO.volume())
+                .musicType(requestDTO.musicType())
                 .build();
 
         return speakerCustomRepository.save(speakerCustom).getSpeakerId();
