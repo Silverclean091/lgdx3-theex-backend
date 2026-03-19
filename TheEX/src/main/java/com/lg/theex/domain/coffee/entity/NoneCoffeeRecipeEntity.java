@@ -75,4 +75,8 @@ public class NoneCoffeeRecipeEntity {
         this.isShared = isShared;
         this.saveCount = saveCount;
     }
+
+    public void toggleShared() {
+        this.isShared = !this.isShared;
+    }
 }

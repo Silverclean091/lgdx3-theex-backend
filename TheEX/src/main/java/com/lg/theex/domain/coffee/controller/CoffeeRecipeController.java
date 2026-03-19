@@ -1,12 +1,18 @@
 package com.lg.theex.domain.coffee.controller;
 
+import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeDetailRequest;
 import com.lg.theex.domain.coffee.dto.request.CoffeePopularRecipeListRequest;
 import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeListRequest;
+import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeShareToggleRequest;
+import com.lg.theex.domain.coffee.dto.response.CoffeeRecipeDetailResponse;
 import com.lg.theex.domain.coffee.dto.response.CoffeePopularRecipeListResponse;
 import com.lg.theex.domain.coffee.dto.response.CoffeeRecipeListResponse;
+import com.lg.theex.domain.coffee.dto.response.CoffeeRecipeShareToggleResponse;
 import com.lg.theex.domain.coffee.service.CoffeeRecipeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +23,28 @@ import org.springframework.web.bind.annotation.RestController;
 public class CoffeeRecipeController {
 
     private final CoffeeRecipeService coffeeRecipeService;
+
+    @PatchMapping("/{recipeId}/share")
+    public CoffeeRecipeShareToggleResponse toggleRecipeShare(
+            @PathVariable Long recipeId
+    ) {
+        return coffeeRecipeService.toggleRecipeShare(
+                CoffeeRecipeShareToggleRequest.builder()
+                        .recipeId(recipeId)
+                        .build()
+        );
+    }
+
+    @GetMapping("/{recipeId}")
+    public CoffeeRecipeDetailResponse getRecipeDetail(
+            @PathVariable Long recipeId
+    ) {
+        return coffeeRecipeService.getRecipeDetail(
+                CoffeeRecipeDetailRequest.builder()
+                        .recipeId(recipeId)
+                        .build()
+        );
+    }
 
     @GetMapping("/basic")
     public CoffeeRecipeListResponse getBasicRecipeList(

@@ -3,11 +3,16 @@ package com.lg.theex.domain.coffee.repository;
 import com.lg.theex.domain.coffee.entity.NoneCoffeeRecipeEntity;
 import com.lg.theex.domain.coffee.entity.enumtype.RecipeCategory;
 import com.lg.theex.domain.coffee.entity.enumtype.RecipeLevel;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NoneCoffeeRecipeRepository extends JpaRepository<NoneCoffeeRecipeEntity, Long> {
+
+    @EntityGraph(attributePaths = {"user", "originRecipe"})
+    Optional<NoneCoffeeRecipeEntity> findWithDetailsByRecipeId(Long recipeId);
 
     List<NoneCoffeeRecipeEntity> findAllByUserUserIdOrderByRecipeIdDesc(Long userId);
 
