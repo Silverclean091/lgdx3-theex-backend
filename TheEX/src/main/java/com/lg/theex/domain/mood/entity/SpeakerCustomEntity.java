@@ -1,5 +1,6 @@
 package com.lg.theex.domain.mood.entity;
 
+import com.lg.theex.domain.mood.entity.enumtype.MusicType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,11 +24,16 @@ public class SpeakerCustomEntity {
     @Column(name = "volume")
     private Integer volume;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "music_type")
+    private MusicType musicType;
+
     @Builder
-    public SpeakerCustomEntity(Long speakerId, String productCode, String musicLink, Integer volume) {
+    public SpeakerCustomEntity(Long speakerId, String productCode, String musicLink, Integer volume, MusicType musicType) {
         this.speakerId = speakerId;
         this.productCode = productCode;
         this.musicLink = musicLink;
         this.volume = volume;
+        this.musicType = musicType;
     }
 }
