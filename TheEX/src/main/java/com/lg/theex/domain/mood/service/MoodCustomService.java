@@ -2,12 +2,14 @@ package com.lg.theex.domain.mood.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.lg.theex.domain.auth.entity.UserMoodListEntity;
 import com.lg.theex.domain.auth.entity.UsersInfoEntity;
 import com.lg.theex.domain.mood.dto.request.MoodCustomRequestDTO;
 import com.lg.theex.domain.mood.entity.MoodColorsetEntity;
 import com.lg.theex.domain.mood.entity.MoodCustomEntity;
 import com.lg.theex.domain.mood.repository.MoodColorsetRepository;
 import com.lg.theex.domain.mood.repository.MoodCustomRepository;
+import com.lg.theex.domain.mood.repository.UserMoodListRepository;
 import com.lg.theex.global.exception.ErrorCode;
 import com.lg.theex.global.exception.exceptionType.BadRequestException;
 import jakarta.persistence.EntityManager;
@@ -22,6 +24,7 @@ public class MoodCustomService {
 
     private final MoodCustomRepository moodCustomRepository;
     private final MoodColorsetRepository moodColorsetRepository;
+    private final UserMoodListRepository userMoodListRepository;
     private final EntityManager entityManager;
     private final ObjectMapper objectMapper;
 
@@ -52,6 +55,7 @@ public class MoodCustomService {
                 .build();
 
         MoodCustomEntity savedMoodCustom = moodCustomRepository.save(moodCustom);
+        saveMoodToUserList(savedMoodCustom.getMoodId());
         return savedMoodCustom.getMoodId();
     }
 
@@ -66,5 +70,31 @@ public class MoodCustomService {
 
         moodCustom.share();
         return moodCustom.getMoodId();
+    }
+
+    @Transactional
+    public Long saveMoodCustom(Long moodId) {
+        if (!moodCustomRepository.existsByMoodIdAndUserIdUserId(moodId, DEMO_USER_ID)) {
+            throw new BadRequestException(ErrorCode.DATA_NOT_EXIST, "존재하지 않는 무드입니다.");
+        }
+
+        saveMoodToUserList(moodId);
+        return moodId;
+    }
+
+    private void saveMoodToUserList(Long moodId) {
+        if (userMoodListRepository.existsByUserUserIdAndMoodMoodId(DEMO_USER_ID, moodId)) {
+            throw new BadRequestException(ErrorCode.DATA_ALREADY_EXIST, "이미 저장된 무드입니다.");
+        }
+
+        UsersInfoEntity user = entityManager.getReference(UsersInfoEntity.class, DEMO_USER_ID);
+        MoodCustomEntity mood = entityManager.getReference(MoodCustomEntity.class, moodId);
+
+        UserMoodListEntity userMoodList = UserMoodListEntity.builder()
+                .user(user)
+                .mood(mood)
+                .build();
+
+        userMoodListRepository.save(userMoodList);
     }
 }

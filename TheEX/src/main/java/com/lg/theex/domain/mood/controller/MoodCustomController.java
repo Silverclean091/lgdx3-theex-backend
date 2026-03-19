@@ -38,4 +38,12 @@ public class MoodCustomController {
         Long sharedMoodId = moodCustomService.shareMoodCustom(moodId);
         return ResponseEntity.ok(Map.of("moodId", sharedMoodId));
     }
+
+    @PostMapping("/{moodId}/save")
+    public ResponseEntity<Map<String, Long>> saveMoodCustom(
+            @PathVariable Long moodId
+    ) {
+        Long savedMoodId = moodCustomService.saveMoodCustom(moodId);
+        return ResponseEntity.ok(Map.of("moodId", savedMoodId));
+    }
 }
