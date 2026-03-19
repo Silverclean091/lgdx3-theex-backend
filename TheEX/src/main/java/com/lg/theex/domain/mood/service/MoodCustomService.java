@@ -54,4 +54,17 @@ public class MoodCustomService {
         MoodCustomEntity savedMoodCustom = moodCustomRepository.save(moodCustom);
         return savedMoodCustom.getMoodId();
     }
+
+    @Transactional
+    public Long shareMoodCustom(Long moodId) {
+        if (!moodCustomRepository.existsByMoodIdAndUserIdUserId(moodId, DEMO_USER_ID)) {
+            throw new BadRequestException(ErrorCode.DATA_NOT_EXIST, "존재하지 않는 무드입니다.");
+        }
+
+        MoodCustomEntity moodCustom = moodCustomRepository.findById(moodId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.DATA_NOT_EXIST, "존재하지 않는 무드입니다."));
+
+        moodCustom.share();
+        return moodCustom.getMoodId();
+    }
 }

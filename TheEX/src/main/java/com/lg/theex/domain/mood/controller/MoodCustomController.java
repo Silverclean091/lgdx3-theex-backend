@@ -6,6 +6,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,5 +29,13 @@ public class MoodCustomController {
         Long moodId = moodCustomService.createMoodCustom(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("moodId", moodId));
+    }
+
+    @PatchMapping("/{moodId}/share")
+    public ResponseEntity<Map<String, Long>> shareMoodCustom(
+            @PathVariable Long moodId
+    ) {
+        Long sharedMoodId = moodCustomService.shareMoodCustom(moodId);
+        return ResponseEntity.ok(Map.of("moodId", sharedMoodId));
     }
 }
