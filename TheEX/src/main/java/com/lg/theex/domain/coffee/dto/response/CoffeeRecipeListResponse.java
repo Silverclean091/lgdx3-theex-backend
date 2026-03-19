@@ -9,7 +9,6 @@ import java.util.List;
 @Builder
 public class CoffeeRecipeListResponse {
 
-    private Long userId;
     private int totalCount;
-    private List<CoffeeRecipeListItemResponse> recipes;
+    private List<CoffeeBasicRecipeListItemResponse> recipes;
 }

@@ -79,4 +79,8 @@ public class NoneCoffeeRecipeEntity {
     public void toggleShared() {
         this.isShared = !this.isShared;
     }
+
+    public void assignOriginRecipeToSelf() {
+        this.originRecipe = this;
+    }
 }

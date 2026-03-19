@@ -38,12 +38,8 @@ public class CoffeeRecipeEntity {
     private CoffeeCapsuleEntity capsule2;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "capsule_temp1", nullable = false)
-    private CapsuleTemp capsuleTemp1;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "capsule_temp2")
-    private CapsuleTemp capsuleTemp2;
+    @Column(name = "capsule_temp", nullable = false)
+    private CapsuleTemp capsuleTemp;
 
     @Column(name = "capsule1_size", nullable = false)
     private Integer capsule1Size;
@@ -94,8 +90,7 @@ public class CoffeeRecipeEntity {
             UsersInfoEntity user,
             CoffeeCapsuleEntity capsule1,
             CoffeeCapsuleEntity capsule2,
-            CapsuleTemp capsuleTemp1,
-            CapsuleTemp capsuleTemp2,
+            CapsuleTemp capsuleTemp,
             Integer capsule1Size,
             Integer capsule2Size,
             Integer capsule1Step1,
@@ -116,8 +111,7 @@ public class CoffeeRecipeEntity {
         this.user = user;
         this.capsule1 = capsule1;
         this.capsule2 = capsule2;
-        this.capsuleTemp1 = capsuleTemp1;
-        this.capsuleTemp2 = capsuleTemp2;
+        this.capsuleTemp = capsuleTemp;
         this.capsule1Size = capsule1Size;
         this.capsule2Size = capsule2Size;
         this.capsule1Step1 = capsule1Step1;
@@ -135,5 +129,9 @@ public class CoffeeRecipeEntity {
 
     public void toggleShared() {
         this.isShared = !this.isShared;
+    }
+
+    public void assignOriginRecipeToSelf() {
+        this.originRecipe = this;
     }
 }

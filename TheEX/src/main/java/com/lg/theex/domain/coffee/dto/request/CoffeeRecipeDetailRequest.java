@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class CoffeeRecipeDetailRequest {
 
     private Long recipeId;
+    private Boolean isCoffee;
 }

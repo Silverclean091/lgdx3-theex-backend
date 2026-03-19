@@ -9,19 +9,19 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CoffeeRecipeListItemResponse {
+public class CoffeeRecipeDetailCoffeeResponse implements CoffeeRecipeDetailResponse {
 
     private Long recipeId;
-    private String recipeName;
-    private RecipeCategory recipeCategory;
+    private String recipeType;
     private Long userId;
     private String userNickname;
+    private String recipeName;
+    private RecipeCategory recipeCategory;
     private Long capsule1Id;
     private String capsule1Name;
     private Long capsule2Id;
     private String capsule2Name;
-    private CapsuleTemp capsuleTemp1;
-    private CapsuleTemp capsuleTemp2;
+    private CapsuleTemp capsuleTemp;
     private Integer capsule1Size;
     private Integer capsule2Size;
     private Integer capsule1Step1;
@@ -36,19 +36,19 @@ public class CoffeeRecipeListItemResponse {
     private Boolean isShared;
     private Integer saveCount;
 
-    public static CoffeeRecipeListItemResponse from(CoffeeRecipeEntity entity) {
-        return CoffeeRecipeListItemResponse.builder()
+    public static CoffeeRecipeDetailCoffeeResponse from(CoffeeRecipeEntity entity) {
+        return CoffeeRecipeDetailCoffeeResponse.builder()
                 .recipeId(entity.getRecipeId())
-                .recipeName(entity.getRecipeName())
-                .recipeCategory(entity.getRecipeCategory())
+                .recipeType("COFFEE")
                 .userId(entity.getUser().getUserId())
                 .userNickname(entity.getUser().getUserNickname())
+                .recipeName(entity.getRecipeName())
+                .recipeCategory(entity.getRecipeCategory())
                 .capsule1Id(entity.getCapsule1() != null ? entity.getCapsule1().getCapsuleId() : null)
                 .capsule1Name(entity.getCapsule1() != null ? entity.getCapsule1().getCapsuleName() : null)
                 .capsule2Id(entity.getCapsule2() != null ? entity.getCapsule2().getCapsuleId() : null)
                 .capsule2Name(entity.getCapsule2() != null ? entity.getCapsule2().getCapsuleName() : null)
-                .capsuleTemp1(entity.getCapsuleTemp1())
-                .capsuleTemp2(entity.getCapsuleTemp2())
+                .capsuleTemp(entity.getCapsuleTemp())
                 .capsule1Size(entity.getCapsule1Size())
                 .capsule2Size(entity.getCapsule2Size())
                 .capsule1Step1(entity.getCapsule1Step1())

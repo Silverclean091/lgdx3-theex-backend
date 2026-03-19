@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class CoffeeRecipeShareToggleRequest {
+public class CoffeeRecipeSaveRequest {
 
     private Long recipeId;
     private Boolean isCoffee;
