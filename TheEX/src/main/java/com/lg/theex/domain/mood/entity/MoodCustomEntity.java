@@ -54,4 +54,8 @@ public class MoodCustomEntity {
         this.isShared = isShared;
         this.saveCount = saveCount;
     }
+
+    public void share() {
+        this.isShared = true;
+    }
 }

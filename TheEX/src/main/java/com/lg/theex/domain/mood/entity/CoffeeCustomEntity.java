@@ -1,4 +1,4 @@
-package com.lg.theex.domain.product.entity;
+package com.lg.theex.domain.mood.entity;
 
 import com.lg.theex.domain.coffee.entity.CoffeeRecipeEntity;
 import jakarta.persistence.*;
@@ -19,16 +19,15 @@ public class CoffeeCustomEntity {
     @JoinColumn(name = "recipe_id", nullable = false)
     private CoffeeRecipeEntity recipe;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_code", referencedColumnName = "product_code")
-    private ProductInfoEntity product;
+    @Column(name = "product_code")
+    private String productCode;
 
     @Builder
     public CoffeeCustomEntity(
             CoffeeRecipeEntity recipe,
-            ProductInfoEntity product
+            String productCode
     ) {
         this.recipe = recipe;
-        this.product = product;
+        this.productCode = productCode;
     }
 }
