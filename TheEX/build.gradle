@@ -4,7 +4,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.LG'
+group = 'com.lg'
 version = '0.0.1-SNAPSHOT'
 description = 'Demo project for Spring Boot'
 
@@ -18,6 +18,13 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	all {
+		resolutionStrategy.eachDependency { details ->
+			if (details.requested.group == 'org.springdoc') {
+				details.useVersion '2.7.0'
+			}
+		}
+	}
 }
 
 repositories {
@@ -25,6 +32,12 @@ repositories {
 }
 
 dependencies {
+	constraints {
+		implementation('org.springdoc:springdoc-openapi-starter-common:2.7.0')
+		implementation('org.springdoc:springdoc-openapi-starter-webmvc-api:2.7.0')
+		implementation('org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0')
+	}
+
 	// JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
@@ -36,6 +49,9 @@ dependencies {
 
 	// web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 	// lombok
 	compileOnly 'org.projectlombok:lombok'
