@@ -4,7 +4,8 @@ import com.lg.theex.domain.auth.entity.UsersInfoEntity;
 import com.lg.theex.domain.auth.entity.UserRecipeListEntity;
 import com.lg.theex.domain.auth.repository.UserRecipeListRepository;
 import com.lg.theex.domain.auth.repository.UsersInfoRepository;
-import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeCustomizeRequest;
+import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeCustomizeCoffeeRequest;
+import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeCustomizeNoneCoffeeRequest;
 import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeDetailRequest;
 import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeListRequest;
 import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeSaveRequest;
@@ -51,14 +52,14 @@ public class CoffeeRecipeService {
 
     @Transactional
     public CoffeeRecipeSaveResponse saveRecipe(CoffeeRecipeSaveRequest request) {
-        if (request.getRecipeId() == null || request.getIsCoffee() == null) {
+        if (request.getRecipeId() == null || request.getRecipeCategory() == null) {
             throw new CustomException(ErrorCode.MISSING_REQUIRED_FIELD);
         }
 
         UsersInfoEntity user = usersInfoRepository.findById(FIXED_USER_ID)
                 .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
 
-        Boolean isCoffee = request.getIsCoffee();
+        Boolean isCoffee = isCoffeeCategory(request.getRecipeCategory());
         validateRecipeExists(request.getRecipeId(), isCoffee);
         UserRecipeListEntity savedEntity = saveUserRecipeList(user, request.getRecipeId(), isCoffee);
 
@@ -66,52 +67,51 @@ public class CoffeeRecipeService {
     }
 
     @Transactional
-    public CoffeeRecipeCustomizeResponse customizeRecipe(CoffeeRecipeCustomizeRequest request) {
-        if (request.getRecipeCategory() == null) {
-            throw new CustomException(ErrorCode.MISSING_REQUIRED_FIELD);
-        }
-
+    public CoffeeRecipeCustomizeResponse customizeCoffeeRecipe(CoffeeRecipeCustomizeCoffeeRequest request) {
         UsersInfoEntity user = usersInfoRepository.findById(FIXED_USER_ID)
                 .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
+        validateCoffeeCustomizeRequest(request);
 
-        if (request.getRecipeCategory() == RecipeCategory.COFFEE) {
-            validateCoffeeCustomizeRequest(request);
+        CoffeeCapsuleEntity capsule1 = coffeeCapsuleRepository.findById(request.getCapsule1Id())
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
+        CoffeeCapsuleEntity capsule2 = request.getCapsule2Id() == null
+                ? null
+                : coffeeCapsuleRepository.findById(request.getCapsule2Id())
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
 
-            CoffeeCapsuleEntity capsule1 = coffeeCapsuleRepository.findById(request.getCapsule1Id())
-                    .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
-            CoffeeCapsuleEntity capsule2 = request.getCapsule2Id() == null
-                    ? null
-                    : coffeeCapsuleRepository.findById(request.getCapsule2Id())
-                    .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
+        CoffeeRecipeEntity entity = coffeeRecipeRepository.save(
+                CoffeeRecipeEntity.builder()
+                        .recipeName(request.getRecipeName())
+                        .recipeCategory(request.getRecipeCategory())
+                        .user(user)
+                        .capsule1(capsule1)
+                        .capsule2(capsule2)
+                        .capsuleTemp(request.getCapsuleTemp())
+                        .capsule1Size(request.getCapsule1Size())
+                        .capsule2Size(request.getCapsule2Size())
+                        .capsule1Step1(request.getCapsule1Step1())
+                        .capsule2Step2(request.getCapsule2Step2())
+                        .capsule1Step3(request.getCapsule1Step3())
+                        .capsule2Step4(request.getCapsule2Step4())
+                        .addObj(request.getAddObj())
+                        .recipeMemo(request.getRecipeMemo())
+                        .isExtract(true)
+                        .originRecipe(null)
+                        .recipeLevel(request.getRecipeLevel())
+                        .isShared(false)
+                        .saveCount(0)
+                        .build()
+        );
+        entity.assignOriginRecipeToSelf();
+        saveUserRecipeList(user, entity.getRecipeId(), true);
 
-            CoffeeRecipeEntity entity = coffeeRecipeRepository.save(
-                    CoffeeRecipeEntity.builder()
-                            .recipeName(request.getRecipeName())
-                            .recipeCategory(request.getRecipeCategory())
-                            .user(user)
-                            .capsule1(capsule1)
-                            .capsule2(capsule2)
-                            .capsuleTemp(request.getCapsuleTemp())
-                            .capsule1Size(request.getCapsule1Size())
-                            .capsule2Size(request.getCapsule2Size())
-                            .capsule1Step1(request.getCapsule1Step1())
-                            .capsule2Step2(request.getCapsule2Step2())
-                            .capsule1Step3(request.getCapsule1Step3())
-                            .capsule2Step4(request.getCapsule2Step4())
-                            .addObj(request.getAddObj())
-                            .recipeMemo(request.getRecipeMemo())
-                            .isExtract(true)
-                            .originRecipe(null)
-                            .recipeLevel(request.getRecipeLevel())
-                            .isShared(false)
-                            .saveCount(0)
-                            .build()
-            );
-            entity.assignOriginRecipeToSelf();
-            saveUserRecipeList(user, entity.getRecipeId(), true);
+        return CoffeeRecipeCustomizeResponse.from(entity);
+    }
 
-            return CoffeeRecipeCustomizeResponse.from(entity);
-        }
+    @Transactional
+    public CoffeeRecipeCustomizeResponse customizeNoneCoffeeRecipe(CoffeeRecipeCustomizeNoneCoffeeRequest request) {
+        UsersInfoEntity user = usersInfoRepository.findById(FIXED_USER_ID)
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
 
         validateNoneCoffeeCustomizeRequest(request);
 
@@ -137,11 +137,11 @@ public class CoffeeRecipeService {
 
     @Transactional
     public CoffeeRecipeShareToggleResponse toggleRecipeShare(CoffeeRecipeShareToggleRequest request) {
-        if (request.getRecipeId() == null || request.getIsCoffee() == null) {
+        if (request.getRecipeId() == null || request.getRecipeCategory() == null) {
             throw new CustomException(ErrorCode.MISSING_REQUIRED_FIELD);
         }
 
-        if (Boolean.TRUE.equals(request.getIsCoffee())) {
+        if (request.getRecipeCategory() == RecipeCategory.COFFEE) {
             CoffeeRecipeEntity entity = coffeeRecipeRepository.findById(request.getRecipeId())
                     .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
             entity.toggleShared();
@@ -229,7 +229,7 @@ public class CoffeeRecipeService {
                 .build();
     }
 
-    private void validateCoffeeCustomizeRequest(CoffeeRecipeCustomizeRequest request) {
+    private void validateCoffeeCustomizeRequest(CoffeeRecipeCustomizeCoffeeRequest request) {
         if (request.getRecipeName() == null
                 || request.getRecipeCategory() == null
                 || request.getCapsule1Id() == null
@@ -270,7 +270,7 @@ public class CoffeeRecipeService {
         }
     }
 
-    private void validateNoneCoffeeCustomizeRequest(CoffeeRecipeCustomizeRequest request) {
+    private void validateNoneCoffeeCustomizeRequest(CoffeeRecipeCustomizeNoneCoffeeRequest request) {
         if (request.getRecipeName() == null
                 || request.getRecipeCategory() == null
                 || request.getRecipeContent() == null
@@ -307,5 +307,9 @@ public class CoffeeRecipeService {
                         .isCoffee(isCoffee)
                         .build()
         );
+    }
+
+    private boolean isCoffeeCategory(RecipeCategory recipeCategory) {
+        return recipeCategory == RecipeCategory.COFFEE;
     }
 }

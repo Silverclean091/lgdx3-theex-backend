@@ -1,5 +1,6 @@
 package com.lg.theex.domain.coffee.dto.request;
 
+import com.lg.theex.domain.coffee.entity.enumtype.RecipeCategory;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,5 +14,5 @@ import lombok.NoArgsConstructor;
 public class CoffeeRecipeSaveRequest {
 
     private Long recipeId;
-    private Boolean isCoffee;
+    private RecipeCategory recipeCategory;
 }

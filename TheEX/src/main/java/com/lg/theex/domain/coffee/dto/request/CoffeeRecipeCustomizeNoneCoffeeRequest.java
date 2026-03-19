@@ -1,6 +1,5 @@
 package com.lg.theex.domain.coffee.dto.request;
 
-import com.lg.theex.domain.coffee.entity.enumtype.CapsuleTemp;
 import com.lg.theex.domain.coffee.entity.enumtype.RecipeCategory;
 import com.lg.theex.domain.coffee.entity.enumtype.RecipeLevel;
 import lombok.AccessLevel;
@@ -13,27 +12,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class CoffeeRecipeCustomizeRequest {
+public class CoffeeRecipeCustomizeNoneCoffeeRequest {
 
-    private Long userId;
     private String recipeName;
     private RecipeCategory recipeCategory;
-
-    private Long capsule1Id;
-    private Long capsule2Id;
-    private CapsuleTemp capsuleTemp;
-    private Integer capsule1Size;
-    private Integer capsule2Size;
-    private Integer capsule1Step1;
-    private Integer capsule2Step2;
-    private Integer capsule1Step3;
-    private Integer capsule2Step4;
-    private String addObj;
-    private String recipeMemo;
-
     private String ingredient;
     private String recipeContent;
     private Integer totalSize;
-
     private RecipeLevel recipeLevel;
 }
