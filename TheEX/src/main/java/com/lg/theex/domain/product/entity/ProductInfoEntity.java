@@ -17,7 +17,7 @@ public class ProductInfoEntity {
     @Column(name = "product_name", nullable = false)
     private String productName;
 
-    @Column(name = "product_code", nullable = false)
+    @Column(name = "product_code", nullable = false, unique = true)
     private String productCode;
 
     @Column(name = "product_no", nullable = false)
