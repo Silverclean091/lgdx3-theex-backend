@@ -24,6 +24,9 @@ public class ProductInfoEntity {
     @Column(name = "product_no", nullable = false)
     private String productNo;
 
+    @Column(name = "is_on", nullable = false)
+    private Boolean isOn;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UsersInfoEntity user;
@@ -37,12 +40,14 @@ public class ProductInfoEntity {
             String productName,
             String productCode,
             String productNo,
+            Boolean isOn,
             UsersInfoEntity user,
             ProductGroupEntity group
     ) {
         this.productName = productName;
         this.productCode = productCode;
         this.productNo = productNo;
+        this.isOn = isOn != null ? isOn : Boolean.TRUE;
         this.user = user;
         this.group = group;
     }

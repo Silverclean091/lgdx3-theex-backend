@@ -20,7 +20,8 @@ public class AuthProductService {
         return productInfoRepository.findAllByUserUserIdOrderByProductInfoIdAsc(DEMO_USER_ID).stream()
                 .map(productInfo -> new MyProductListResponseDTO(
                         productInfo.getProductInfoId(),
-                        productInfo.getProductName()
+                        productInfo.getProductName(),
+                        productInfo.getIsOn()
                 ))
                 .toList();
     }
