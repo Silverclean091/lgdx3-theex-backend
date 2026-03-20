@@ -1,5 +1,6 @@
 package com.lg.theex.domain.product.entity;
 
+import com.lg.theex.domain.auth.entity.UsersInfoEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,10 @@ public class ProductInfoEntity {
     private String productNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UsersInfoEntity user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private ProductGroupEntity group;
 
@@ -32,15 +37,21 @@ public class ProductInfoEntity {
             String productName,
             String productCode,
             String productNo,
+            UsersInfoEntity user,
             ProductGroupEntity group
     ) {
         this.productName = productName;
         this.productCode = productCode;
         this.productNo = productNo;
+        this.user = user;
         this.group = group;
     }
 
     public void updateGroup(ProductGroupEntity group) {
         this.group = group;
+    }
+
+    public void updateUser(UsersInfoEntity user) {
+        this.user = user;
     }
 }
