@@ -4,8 +4,10 @@ import com.lg.theex.domain.mood.dto.request.CoffeeCustomRequestDTO;
 import com.lg.theex.domain.mood.dto.request.LightCustomRequestDTO;
 import com.lg.theex.domain.mood.dto.request.MoodCustomRequestDTO;
 import com.lg.theex.domain.mood.dto.request.SpeakerCustomRequestDTO;
+import com.lg.theex.domain.mood.dto.response.CurrentMoodResponseDTO;
 import com.lg.theex.domain.mood.dto.response.MoodCustomListResponseDTO;
 import com.lg.theex.domain.mood.service.CoffeeCustomService;
+import com.lg.theex.domain.mood.service.CurrentMoodService;
 import com.lg.theex.domain.mood.service.LightCustomService;
 import com.lg.theex.domain.mood.service.MoodCustomService;
 import com.lg.theex.domain.mood.service.SpeakerCustomService;
@@ -33,6 +35,7 @@ public class MoodCustomController {
     private final LightCustomService lightCustomService;
     private final MoodCustomService moodCustomService;
     private final SpeakerCustomService speakerCustomService;
+    private final CurrentMoodService currentMoodService;
 
     @PostMapping("/light-custom")
     public ResponseEntity<Map<String, Long>> createLightCustom(
@@ -89,5 +92,18 @@ public class MoodCustomController {
     @GetMapping("/shared")
     public ResponseEntity<List<MoodCustomListResponseDTO>> getSharedMoodCustoms() {
         return ResponseEntity.ok(moodCustomService.getSharedMoodCustoms());
+    }
+
+    @PostMapping("/select/{moodId}")
+    public ResponseEntity<Void> selectCurrentMood(
+            @PathVariable Long moodId
+    ) {
+        currentMoodService.selectCurrentMood(moodId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/current")
+    public ResponseEntity<CurrentMoodResponseDTO> getCurrentMood() {
+        return ResponseEntity.ok(currentMoodService.getCurrentMood());
     }
 }
