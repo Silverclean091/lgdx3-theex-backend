@@ -138,6 +138,7 @@ public class MoodCustomService {
         return new MoodCustomListResponseDTO(
                 moodCustom.getMoodId(),
                 moodCustom.getMoodName(),
+                moodCustom.getColorsetId().getColorsetMain(),
                 new MoodCustomProductResponseDTO(
                         toLightCustomDetail(customProduct.lightCustom()),
                         toSpeakerCustomDetail(customProduct.speakerCustom()),
