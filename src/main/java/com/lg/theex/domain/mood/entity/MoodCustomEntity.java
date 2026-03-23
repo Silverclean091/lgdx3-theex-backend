@@ -58,4 +58,8 @@ public class MoodCustomEntity {
     public void share() {
         this.isShared = true;
     }
+
+    public void increaseSaveCount() {
+        this.saveCount += 1;
+    }
 }

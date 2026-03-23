@@ -99,11 +99,19 @@ public class MoodCustomService {
 
     @Transactional
     public Long saveMoodCustom(Long moodId) {
-        if (!moodCustomRepository.existsByMoodIdAndUserIdUserId(moodId, DEMO_USER_ID)) {
-            throw new BadRequestException(ErrorCode.DATA_NOT_EXIST, "존재하지 않는 무드입니다.");
+        MoodCustomEntity moodCustom = moodCustomRepository.findById(moodId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.DATA_NOT_EXIST, "존재하지 않는 무드입니다."));
+
+        if (DEMO_USER_ID.equals(moodCustom.getUserId().getUserId())) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "내가 만든 무드는 저장할 수 없습니다.");
+        }
+
+        if (!Boolean.TRUE.equals(moodCustom.getIsShared())) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "공유된 무드만 저장할 수 있습니다.");
         }
 
         saveMoodToUserList(moodId);
+        moodCustom.increaseSaveCount();
         return moodId;
     }
 
