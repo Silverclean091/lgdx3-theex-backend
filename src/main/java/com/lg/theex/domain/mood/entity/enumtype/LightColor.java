@@ -7,18 +7,18 @@ import com.lg.theex.global.exception.exceptionType.BadRequestException;
 
 import java.util.Arrays;
 
-public enum MusicType {
-    JAZZ("Jazz"),
-    ACOUSTIC("Acoustic"),
-    CLASSICAL("Classical"),
-    CAFEBGM("Cafe BGM"),
-    CHILL("Chill"),
-    KPOP("K-POP"),
-    MUSICAL("Musical");
+public enum LightColor {
+    WARM_WHITE("Warm White"),
+    SOFT_WHITE("Soft White"),
+    DAYLIGHT("Daylight"),
+    AMBER("Amber"),
+    ORANGE("Orange"),
+    BLUE("Blue"),
+    PURPLE("Purple");
 
     private final String value;
 
-    MusicType(String value) {
+    LightColor(String value) {
         this.value = value;
     }
 
@@ -28,13 +28,13 @@ public enum MusicType {
     }
 
     @JsonCreator
-    public static MusicType from(String value) {
+    public static LightColor from(String value) {
         return Arrays.stream(values())
-                .filter(musicType -> musicType.value.equalsIgnoreCase(value))
+                .filter(lightColor -> lightColor.value.equalsIgnoreCase(value))
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException(
                         ErrorCode.INVALID_FORMAT,
-                        "지원하지 않는 musicType 값입니다."
+                        "지원하지 않는 lightColor 값입니다."
                 ));
     }
 }

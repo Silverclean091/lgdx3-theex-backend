@@ -1,5 +1,6 @@
 package com.lg.theex.domain.mood.entity;
 
+import com.lg.theex.domain.mood.entity.enumtype.LightColor;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,13 +19,14 @@ public class LightCustomEntity {
     private String productCode;
 
     @Column(name = "light_color")
-    private String lightColor;
+    @Enumerated(EnumType.STRING)
+    private LightColor lightColor;
 
     @Column(name = "light_bright")
     private Integer lightBright;
 
     @Builder
-    public LightCustomEntity(Long lightId, String productCode, String lightColor, Integer lightBright) {
+    public LightCustomEntity(Long lightId, String productCode, LightColor lightColor, Integer lightBright) {
         this.lightId = lightId;
         this.productCode = productCode;
         this.lightColor = lightColor;
