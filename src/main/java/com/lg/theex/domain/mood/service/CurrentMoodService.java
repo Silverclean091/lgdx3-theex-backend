@@ -100,13 +100,13 @@ public class CurrentMoodService {
         }
 
         return switch (lightColor) {
-            case WARM_WHITE -> new int[]{255, 244, 229};
-            case SOFT_WHITE -> new int[]{255, 236, 210};
-            case DAYLIGHT -> new int[]{255, 255, 255};
-            case AMBER -> new int[]{255, 191, 0};
-            case ORANGE -> new int[]{255, 165, 0};
-            case BLUE -> new int[]{0, 102, 255};
-            case PURPLE -> new int[]{153, 51, 255};
+            case AMBER -> new int[]{255, 165, 75};
+            case BLUE -> new int[]{75, 132, 255};
+            case DAYLIGHT -> new int[]{243, 243, 243};
+            case ORANGE -> new int[]{255, 135, 92};
+            case PURPLE -> new int[]{99, 0, 166};
+            case SOFT_WHITE -> new int[]{233, 248, 255};
+            case WARM_WHITE -> new int[]{255, 252, 233};
         };
     }
 
