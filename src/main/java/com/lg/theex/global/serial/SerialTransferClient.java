@@ -27,7 +27,12 @@ public class SerialTransferClient {
             log.info("Serial is disabled by configuration.");
             return;
         }
-        openPort();
+        try {
+            openPort();
+        } catch (Exception e) {
+            log.error("Serial initialization skipped due to error: {}", e.getMessage());
+            serialPort = null;
+        }
     }
 
     private void openPort() {
