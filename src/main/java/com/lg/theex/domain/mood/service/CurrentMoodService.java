@@ -48,6 +48,7 @@ public class CurrentMoodService {
         int[] rgb = mapLightColorToRgb(lightCustom.getLightColor());
 
         CurrentMoodStateEntity state = CurrentMoodStateEntity.builder()
+                .stateId(nextStateId())
                 .mood(moodCustom)
                 .lightR(rgb[0])
                 .lightG(rgb[1])
@@ -130,5 +131,11 @@ public class CurrentMoodService {
             case KPOP -> 6;
             case MUSICAL -> 7;
         };
+    }
+
+    private synchronized Long nextStateId() {
+        return currentMoodStateRepository.findTopByOrderByStateIdDesc()
+                .map(state -> state.getStateId() + 1)
+                .orElse(1L);
     }
 }
