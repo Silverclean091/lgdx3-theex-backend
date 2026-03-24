@@ -27,6 +27,22 @@ public enum MusicType {
         return value;
     }
 
+    public int getTrackNumber() {
+        return switch (this) {
+            case CAFEBGM -> 1;
+            case ACOUSTIC -> 2;
+            case KPOP -> 3;
+            case JAZZ -> 4;
+            case CLASSICAL -> 5;
+            case CHILL -> 6;
+            case MUSICAL -> 7;
+        };
+    }
+
+    public String getTrackNumberAsString() {
+        return String.valueOf(getTrackNumber());
+    }
+
     @JsonCreator
     public static MusicType from(String value) {
         return Arrays.stream(values())

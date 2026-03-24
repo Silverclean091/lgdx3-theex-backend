@@ -82,9 +82,24 @@ public class SerialTransferClient {
         byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
         int written = serialPort.writeBytes(bytes, bytes.length);
         if (written != bytes.length) {
+            log.warn("Serial write failed, retrying...");
+            serialPort.closePort();
+            openPort();
+
+            if (serialPort == null || !serialPort.isOpen()) {
+                throw new ServiceUnavailableException(
+                        ErrorCode.SERVICE_UNAVAILABLE,
+                        "Serial port reconnection failed."
+                );
+            }
+
+            written = serialPort.writeBytes(bytes, bytes.length);
+        }
+
+        if (written != bytes.length) {
             throw new ServiceUnavailableException(
-                    ErrorCode.SERVICE_UNAVAILABLE,
-                    "Serial write failed."
+                ErrorCode.SERVICE_UNAVAILABLE,
+                "Serial write failed."
             );
         }
     }

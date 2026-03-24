@@ -38,6 +38,12 @@ public class CurrentMoodSerialService {
         }
 
         try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        try {
             serialTransferClient.sendLine(payload);
         } catch (Exception e) {
             log.error("Serial transfer failed", e);

@@ -12,7 +12,6 @@ import com.lg.theex.domain.mood.entity.LightCustomEntity;
 import com.lg.theex.domain.mood.entity.MoodCustomEntity;
 import com.lg.theex.domain.mood.entity.SpeakerCustomEntity;
 import com.lg.theex.domain.mood.entity.enumtype.LightColor;
-import com.lg.theex.domain.mood.entity.enumtype.MusicType;
 import com.lg.theex.domain.mood.repository.CurrentMoodStateRepository;
 import com.lg.theex.domain.mood.repository.LightCustomRepository;
 import com.lg.theex.domain.mood.repository.MoodCustomRepository;
@@ -117,20 +116,7 @@ public class CurrentMoodService {
             return Integer.parseInt(musicLink);
         }
 
-        MusicType musicType = speakerCustom.getMusicType();
-        if (musicType == null) {
-            throw new BadRequestException(ErrorCode.INVALID_FORMAT, "musicType is missing.");
-        }
-
-        return switch (musicType) {
-            case JAZZ -> 1;
-            case ACOUSTIC -> 2;
-            case CLASSICAL -> 3;
-            case CAFEBGM -> 4;
-            case CHILL -> 5;
-            case KPOP -> 6;
-            case MUSICAL -> 7;
-        };
+        throw new BadRequestException(ErrorCode.INVALID_FORMAT, "musicLink must be numeric.");
     }
 
     private synchronized Long nextStateId() {

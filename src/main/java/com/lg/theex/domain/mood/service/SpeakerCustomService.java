@@ -2,6 +2,8 @@ package com.lg.theex.domain.mood.service;
 
 import com.lg.theex.domain.mood.dto.request.SpeakerCustomRequestDTO;
 import com.lg.theex.domain.mood.entity.SpeakerCustomEntity;
+import com.lg.theex.global.exception.ErrorCode;
+import com.lg.theex.global.exception.exceptionType.BadRequestException;
 import com.lg.theex.domain.mood.repository.SpeakerCustomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,9 +18,13 @@ public class SpeakerCustomService {
 
     @Transactional
     public Long createSpeakerCustom(SpeakerCustomRequestDTO requestDTO) {
+        if (requestDTO.musicType() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_FORMAT, "musicType is missing.");
+        }
+
         SpeakerCustomEntity speakerCustom = SpeakerCustomEntity.builder()
                 .productCode(DEFAULT_PRODUCT_CODE)
-                .musicLink(requestDTO.musicLink())
+                .musicLink(requestDTO.musicType().getTrackNumberAsString())
                 .volume(requestDTO.volume())
                 .musicType(requestDTO.musicType())
                 .build();
