@@ -8,6 +8,7 @@ import com.lg.theex.domain.mood.dto.response.CurrentMoodResponseDTO;
 import com.lg.theex.domain.mood.dto.response.MoodCustomListResponseDTO;
 import com.lg.theex.domain.mood.service.CoffeeCustomService;
 import com.lg.theex.domain.mood.service.CurrentMoodService;
+import com.lg.theex.domain.mood.service.CurrentMoodSerialService;
 import com.lg.theex.domain.mood.service.LightCustomService;
 import com.lg.theex.domain.mood.service.MoodCustomService;
 import com.lg.theex.domain.mood.service.SpeakerCustomService;
@@ -36,6 +37,7 @@ public class MoodCustomController {
     private final MoodCustomService moodCustomService;
     private final SpeakerCustomService speakerCustomService;
     private final CurrentMoodService currentMoodService;
+    private final CurrentMoodSerialService currentMoodSerialService;
 
     @PostMapping("/light-custom")
     public ResponseEntity<Map<String, Long>> createLightCustom(
@@ -105,5 +107,14 @@ public class MoodCustomController {
     @GetMapping("/current")
     public ResponseEntity<CurrentMoodResponseDTO> getCurrentMood() {
         return ResponseEntity.ok(currentMoodService.getCurrentMood());
+    }
+
+    @PostMapping("/current/send-serial")
+    public ResponseEntity<Map<String, String>> sendCurrentMoodToSerial() {
+        String payload = currentMoodSerialService.sendCurrentMoodToEsp32();
+        return ResponseEntity.ok(Map.of(
+                "status", "sent",
+                "payload", payload
+        ));
     }
 }
