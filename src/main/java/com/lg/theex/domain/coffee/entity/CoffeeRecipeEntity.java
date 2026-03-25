@@ -2,6 +2,7 @@ package com.lg.theex.domain.coffee.entity;
 
 import com.lg.theex.domain.auth.entity.UsersInfoEntity;
 import com.lg.theex.domain.coffee.entity.enumtype.CapsuleTemp;
+import com.lg.theex.domain.coffee.entity.enumtype.CoffeeCategory;
 import com.lg.theex.domain.coffee.entity.enumtype.RecipeCategory;
 import com.lg.theex.domain.coffee.entity.enumtype.RecipeLevel;
 import jakarta.persistence.*;
@@ -24,6 +25,10 @@ public class CoffeeRecipeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "recipe_category", nullable = false)
     private RecipeCategory recipeCategory;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "coffee_category")
+    private CoffeeCategory coffeeCategory;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -87,6 +92,7 @@ public class CoffeeRecipeEntity {
             Long recipeId,
             String recipeName,
             RecipeCategory recipeCategory,
+            CoffeeCategory coffeeCategory,
             UsersInfoEntity user,
             CoffeeCapsuleEntity capsule1,
             CoffeeCapsuleEntity capsule2,
@@ -108,6 +114,7 @@ public class CoffeeRecipeEntity {
         this.recipeId = recipeId;
         this.recipeName = recipeName;
         this.recipeCategory = recipeCategory;
+        this.coffeeCategory = coffeeCategory;
         this.user = user;
         this.capsule1 = capsule1;
         this.capsule2 = capsule2;
