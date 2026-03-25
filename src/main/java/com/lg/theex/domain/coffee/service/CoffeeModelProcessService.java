@@ -39,6 +39,7 @@ public class CoffeeModelProcessService {
 
     private volatile Path extractedModelPath;
     private volatile Path extractedScriptPath;
+    private volatile PredictionCache cachedPrediction;
 
     public PredictionResult predict(
             Float temperature,
@@ -46,6 +47,11 @@ public class CoffeeModelProcessService {
             Float temperatureDiff1h,
             LocalDateTime recordedAt
     ) {
+        PredictionCache currentCache = cachedPrediction;
+        if (currentCache != null && currentCache.matches(temperature, humidity, temperatureDiff1h, recordedAt)) {
+            return currentCache.result();
+        }
+
         String resolvedModelPath = resolveModelPath().toString();
         String resolvedScriptPath = resolveScriptPath().toString();
 
@@ -62,17 +68,22 @@ public class CoffeeModelProcessService {
         command.add(recordedAt.toString());
 
         ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.redirectErrorStream(true);
         processBuilder.environment().put("PYTHONIOENCODING", "UTF-8");
         processBuilder.environment().put("PYTHONUTF8", "1");
 
         try {
             Process process = processBuilder.start();
             String output;
+            String errorOutput;
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8)
+            );
+                 BufferedReader errorReader = new BufferedReader(
+                         new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8)
             )) {
                 output = reader.lines().reduce((left, right) -> left + System.lineSeparator() + right)
+                        .orElse("");
+                errorOutput = errorReader.lines().reduce((left, right) -> left + System.lineSeparator() + right)
                         .orElse("");
             }
 
@@ -83,15 +94,20 @@ public class CoffeeModelProcessService {
             }
 
             if (process.exitValue() != 0) {
-                throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "Coffee model process failed: " + output);
+                throw new CustomException(
+                        ErrorCode.INTERNAL_SERVER_ERROR,
+                        "Coffee model process failed: " + mergeOutputs(output, errorOutput)
+                );
             }
 
-            String label = output.trim();
+            String label = extractLastNonBlankLine(output);
             if (label.isBlank()) {
                 throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "Coffee model returned empty result.");
             }
 
-            return new PredictionResult(label, mapLabelToCategory(label));
+            PredictionResult result = new PredictionResult(label, mapLabelToCategory(label));
+            cachedPrediction = new PredictionCache(temperature, humidity, temperatureDiff1h, recordedAt, result);
+            return result;
         } catch (IOException e) {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "Failed to execute coffee model: " + e.getMessage());
         } catch (InterruptedException e) {
@@ -166,6 +182,30 @@ public class CoffeeModelProcessService {
         return String.format(Locale.US, "%.4f", value);
     }
 
+    private String extractLastNonBlankLine(String output) {
+        String[] lines = output.split("\\R");
+        for (int i = lines.length - 1; i >= 0; i--) {
+            String line = lines[i].trim();
+            if (!line.isBlank()) {
+                return line;
+            }
+        }
+        return "";
+    }
+
+    private String mergeOutputs(String output, String errorOutput) {
+        String stdout = output == null ? "" : output.trim();
+        String stderr = errorOutput == null ? "" : errorOutput.trim();
+
+        if (stdout.isBlank()) {
+            return stderr;
+        }
+        if (stderr.isBlank()) {
+            return stdout;
+        }
+        return stdout + System.lineSeparator() + stderr;
+    }
+
     private CoffeeCategory mapLabelToCategory(String label) {
         return switch (label.trim()) {
             case "BLACK" -> CoffeeCategory.BLACK;
@@ -182,5 +222,25 @@ public class CoffeeModelProcessService {
             String label,
             CoffeeCategory coffeeCategory
     ) {
+    }
+
+    private record PredictionCache(
+            Float temperature,
+            Float humidity,
+            Float temperatureDiff1h,
+            LocalDateTime recordedAt,
+            PredictionResult result
+    ) {
+        private boolean matches(
+                Float temperature,
+                Float humidity,
+                Float temperatureDiff1h,
+                LocalDateTime recordedAt
+        ) {
+            return this.temperature.equals(temperature)
+                    && this.humidity.equals(humidity)
+                    && this.temperatureDiff1h.equals(temperatureDiff1h)
+                    && this.recordedAt.equals(recordedAt);
+        }
     }
 }

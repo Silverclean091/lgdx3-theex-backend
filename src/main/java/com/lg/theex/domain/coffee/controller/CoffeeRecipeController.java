@@ -88,7 +88,7 @@ public class CoffeeRecipeController {
         return coffeeRecipeService.getPopularRecipeList();
     }
 
-    @GetMapping("/recommendation/environment")
+    @GetMapping("/ai-recommend")
     public CoffeeEnvironmentRecipeResponse getEnvironmentRecommendation() {
         return coffeeRecipeService.getEnvironmentRecommendation();
     }

@@ -1,11 +1,19 @@
 import pickle
 import sys
+import warnings
 from datetime import datetime
 
+try:
+    from sklearn.exceptions import InconsistentVersionWarning
+
+    warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+except Exception:
+    pass
+
 LABEL_TO_CATEGORY = {
-    "블랙계": "BLACK",
-    "크리미계": "CREAMY",
-    "달콤계": "SWEET",
+    "\ub2ec\ucf64\uacc4": "SWEET",
+    "\ube14\ub799\uacc4": "BLACK",
+    "\ud06c\ub9ac\ubbf8\uacc4": "CREAMY",
 }
 
 
@@ -64,7 +72,10 @@ def build_features(temperature, humidity, temperature_diff_1h, recorded_at):
 
 def main():
     if len(sys.argv) != 6:
-        raise ValueError("Usage: predict_coffee_category.py <model_path> <temperature> <humidity> <temperature_diff_1h> <recorded_at>")
+        raise ValueError(
+            "Usage: predict_coffee_category.py <model_path> <temperature> <humidity> "
+            "<temperature_diff_1h> <recorded_at>"
+        )
 
     model_path = sys.argv[1]
     temperature = float(sys.argv[2])
