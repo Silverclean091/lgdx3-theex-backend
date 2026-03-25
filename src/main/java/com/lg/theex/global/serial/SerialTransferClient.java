@@ -104,6 +104,10 @@ public class SerialTransferClient {
         }
     }
 
+    public SerialPort getSerialPort() {
+        return serialPort;
+    }
+
     @PreDestroy
     public void destroy() {
         if (serialPort != null && serialPort.isOpen()) {

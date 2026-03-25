@@ -32,7 +32,8 @@ public class SecurityConfig {
                                 "/api/product/**",
                                 "/api/coffee/**",
                                 "/api/auth/**",
-                                "/api/mood/**"
+                                "/api/mood/**",
+                                "/api/sensor/latest"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
