@@ -1,6 +1,7 @@
 package com.lg.theex.domain.coffee.repository;
 
 import com.lg.theex.domain.coffee.entity.CoffeeRecipeEntity;
+import com.lg.theex.domain.coffee.entity.enumtype.CoffeeCategory;
 import com.lg.theex.domain.coffee.entity.enumtype.RecipeCategory;
 import com.lg.theex.domain.coffee.entity.enumtype.RecipeLevel;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -42,4 +43,7 @@ public interface CoffeeRecipeRepository extends JpaRepository<CoffeeRecipeEntity
     List<CoffeeRecipeEntity> findAllByRecipeLevelOrderByRecipeIdDesc(RecipeLevel recipeLevel);
 
     List<CoffeeRecipeEntity> findAllByOriginRecipeRecipeId(Long originRecipeId);
+
+    @EntityGraph(attributePaths = {"user", "capsule1", "capsule2", "originRecipe"})
+    List<CoffeeRecipeEntity> findAllByCoffeeCategoryOrderBySaveCountDescRecipeIdDesc(CoffeeCategory coffeeCategory);
 }

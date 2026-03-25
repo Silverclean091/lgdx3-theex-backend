@@ -11,6 +11,7 @@ import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeListRequest;
 import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeSaveRequest;
 import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeShareToggleRequest;
 import com.lg.theex.domain.coffee.dto.response.CoffeeRecipeCustomizeResponse;
+import com.lg.theex.domain.coffee.dto.response.CoffeeEnvironmentRecipeResponse;
 import com.lg.theex.domain.coffee.dto.response.CoffeeRecipeDetailCoffeeResponse;
 import com.lg.theex.domain.coffee.dto.response.CoffeeRecipeDetailNoneCoffeeResponse;
 import com.lg.theex.domain.coffee.dto.response.CoffeeRecipeDetailResponse;
@@ -23,6 +24,8 @@ import com.lg.theex.domain.coffee.dto.response.CoffeeRecipeShareToggleResponse;
 import com.lg.theex.domain.coffee.entity.CoffeeCapsuleEntity;
 import com.lg.theex.domain.coffee.entity.CoffeeRecipeEntity;
 import com.lg.theex.domain.coffee.entity.NoneCoffeeRecipeEntity;
+import com.lg.theex.domain.sensor.entity.SensorLogEntity;
+import com.lg.theex.domain.sensor.repository.SensorLogRepository;
 import com.lg.theex.domain.coffee.entity.enumtype.RecipeCategory;
 import com.lg.theex.domain.coffee.repository.CoffeeRecipeRepository;
 import com.lg.theex.domain.coffee.repository.CoffeeCapsuleRepository;
@@ -33,7 +36,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +54,8 @@ public class CoffeeRecipeService {
     private final CoffeeCapsuleRepository coffeeCapsuleRepository;
     private final CoffeeRecipeRepository coffeeRecipeRepository;
     private final NoneCoffeeRecipeRepository noneCoffeeRecipeRepository;
+    private final SensorLogRepository sensorLogRepository;
+    private final CoffeeModelProcessService coffeeModelProcessService;
 
     @Transactional
     public CoffeeRecipeSaveResponse saveRecipe(CoffeeRecipeSaveRequest request) {
@@ -229,6 +236,33 @@ public class CoffeeRecipeService {
                 .build();
     }
 
+    public CoffeeEnvironmentRecipeResponse getEnvironmentRecommendation() {
+        SensorLogEntity latestSensorLog = sensorLogRepository.findTopByOrderByRecordedAtDesc()
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST, "Sensor log does not exist."));
+
+        Float temperatureDiff1h = getTemperatureDiff1h(latestSensorLog);
+        CoffeeModelProcessService.PredictionResult prediction = coffeeModelProcessService.predict(
+                latestSensorLog.getTemperature(),
+                latestSensorLog.getHumidity(),
+                temperatureDiff1h,
+                latestSensorLog.getRecordedAt()
+        );
+
+        List<CoffeeRecipeEntity> recipes = coffeeRecipeRepository
+                .findAllByCoffeeCategoryOrderBySaveCountDescRecipeIdDesc(prediction.coffeeCategory());
+
+        if (recipes.isEmpty()) {
+            throw new CustomException(
+                    ErrorCode.DATA_NOT_EXIST,
+                    "No coffee recipe found for category: " + prediction.coffeeCategory()
+            );
+        }
+
+        CoffeeRecipeEntity recipe = recipes.get(ThreadLocalRandom.current().nextInt(recipes.size()));
+
+        return CoffeeEnvironmentRecipeResponse.from(recipe);
+    }
+
     private void validateCoffeeCustomizeRequest(CoffeeRecipeCustomizeCoffeeRequest request) {
         if (request.getRecipeName() == null
                 || request.getRecipeCategory() == null
@@ -311,5 +345,13 @@ public class CoffeeRecipeService {
 
     private boolean isCoffeeCategory(RecipeCategory recipeCategory) {
         return recipeCategory == RecipeCategory.COFFEE;
+    }
+
+    private Float getTemperatureDiff1h(SensorLogEntity latestSensorLog) {
+        LocalDateTime baseTime = latestSensorLog.getRecordedAt().minusHours(1);
+
+        return sensorLogRepository.findTopByRecordedAtLessThanEqualOrderByRecordedAtDesc(baseTime)
+                .map(previous -> latestSensorLog.getTemperature() - previous.getTemperature())
+                .orElse(0.0f);
     }
 }
