@@ -21,7 +21,7 @@ jobs:
     - name: Create application.yml
       run: |
         mkdir -p src/main/resources
-        echo "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
+        echo '${{ secrets.APPLICATION_YML }}' > src/main/resources/application.yml
         
     - name: Grant execute permission for gradlew    
       run: chmod +x gradlew
@@ -50,9 +50,7 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          # 기존 8080 컨테이너가 있다면 중지 및 삭제
           docker stop mediko-backend-container || true
           docker rm mediko-backend-container || true
-          # 이미지 로드 및 8080 포트로 실행
           docker load < mediko-backend-image.tar
           docker run -d -p 8080:8080 --name mediko-backend-container mediko-backend-image
