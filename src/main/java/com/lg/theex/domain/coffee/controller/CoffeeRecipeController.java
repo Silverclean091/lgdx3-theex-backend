@@ -6,6 +6,7 @@ import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeDetailRequest;
 import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeSaveRequest;
 import com.lg.theex.domain.coffee.dto.request.CoffeeRecipeShareToggleRequest;
 import com.lg.theex.domain.coffee.dto.response.CoffeeRecipeCustomizeResponse;
+import com.lg.theex.domain.coffee.dto.response.CoffeeEnvironmentRecipeResponse;
 import com.lg.theex.domain.coffee.dto.response.CoffeeRecipeDetailResponse;
 import com.lg.theex.domain.coffee.dto.response.CoffeePopularRecipeListResponse;
 import com.lg.theex.domain.coffee.dto.response.CoffeeRecipeListResponse;
@@ -85,5 +86,10 @@ public class CoffeeRecipeController {
     @GetMapping("/popular")
     public CoffeePopularRecipeListResponse getPopularRecipeList() {
         return coffeeRecipeService.getPopularRecipeList();
+    }
+
+    @GetMapping("/recommendation/environment")
+    public CoffeeEnvironmentRecipeResponse getEnvironmentRecommendation() {
+        return coffeeRecipeService.getEnvironmentRecommendation();
     }
 }
