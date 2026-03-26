@@ -138,6 +138,38 @@ public class CoffeeRecipeEntity {
         this.isShared = !this.isShared;
     }
 
+    public void updateRecipe(
+            String recipeName,
+            RecipeCategory recipeCategory,
+            CoffeeCapsuleEntity capsule1,
+            CoffeeCapsuleEntity capsule2,
+            CapsuleTemp capsuleTemp,
+            Integer capsule1Size,
+            Integer capsule2Size,
+            Integer capsule1Step1,
+            Integer capsule2Step2,
+            Integer capsule1Step3,
+            Integer capsule2Step4,
+            String addObj,
+            String recipeMemo,
+            RecipeLevel recipeLevel
+    ) {
+        this.recipeName = recipeName;
+        this.recipeCategory = recipeCategory;
+        this.capsule1 = capsule1;
+        this.capsule2 = capsule2;
+        this.capsuleTemp = capsuleTemp;
+        this.capsule1Size = capsule1Size;
+        this.capsule2Size = capsule2Size;
+        this.capsule1Step1 = capsule1Step1;
+        this.capsule2Step2 = capsule2Step2;
+        this.capsule1Step3 = capsule1Step3;
+        this.capsule2Step4 = capsule2Step4;
+        this.addObj = addObj;
+        this.recipeMemo = recipeMemo;
+        this.recipeLevel = recipeLevel;
+    }
+
     public void assignOriginRecipeToSelf() {
         this.originRecipe = this;
     }

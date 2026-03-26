@@ -21,4 +21,13 @@ public class CoffeeRecipeSaveResponse {
                 .isCoffee(entity.getIsCoffee())
                 .build();
     }
+
+    public static CoffeeRecipeSaveResponse of(Long userId, Long recipeId, Boolean isCoffee) {
+        return CoffeeRecipeSaveResponse.builder()
+                .userRecipeId(null)
+                .userId(userId)
+                .recipeId(String.valueOf(recipeId))
+                .isCoffee(isCoffee)
+                .build();
+    }
 }

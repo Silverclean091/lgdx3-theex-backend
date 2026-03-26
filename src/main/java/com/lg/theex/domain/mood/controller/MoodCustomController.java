@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,6 +76,15 @@ public class MoodCustomController {
                 .body(Map.of("moodId", moodId));
     }
 
+    @PatchMapping("/custom/{moodId}")
+    public ResponseEntity<Map<String, Long>> updateMoodCustom(
+            @PathVariable Long moodId,
+            @Valid @RequestBody MoodCustomRequestDTO requestDTO
+    ) {
+        Long updatedMoodId = moodCustomService.updateMoodCustom(moodId, requestDTO);
+        return ResponseEntity.ok(Map.of("moodId", updatedMoodId));
+    }
+
     @PatchMapping("/{moodId}/share")
     public ResponseEntity<Map<String, Long>> shareMoodCustom(
             @PathVariable Long moodId
@@ -89,6 +99,22 @@ public class MoodCustomController {
     ) {
         Long savedMoodId = moodCustomService.saveMoodCustom(moodId);
         return ResponseEntity.ok(Map.of("moodId", savedMoodId));
+    }
+
+    @DeleteMapping("/{moodId}/save")
+    public ResponseEntity<Map<String, Long>> unsaveMoodCustom(
+            @PathVariable Long moodId
+    ) {
+        Long unsavedMoodId = moodCustomService.unsaveMoodCustom(moodId);
+        return ResponseEntity.ok(Map.of("moodId", unsavedMoodId));
+    }
+
+    @DeleteMapping("/{moodId}")
+    public ResponseEntity<Map<String, Long>> deleteOwnMoodCustom(
+            @PathVariable Long moodId
+    ) {
+        Long deletedMoodId = moodCustomService.deleteOwnMoodCustom(moodId);
+        return ResponseEntity.ok(Map.of("moodId", deletedMoodId));
     }
 
     @GetMapping("/shared")

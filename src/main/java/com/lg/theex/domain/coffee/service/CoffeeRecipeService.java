@@ -74,6 +74,204 @@ public class CoffeeRecipeService {
     }
 
     @Transactional
+    public CoffeeRecipeSaveResponse unsaveRecipe(CoffeeRecipeSaveRequest request) {
+        if (request.getRecipeId() == null || request.getRecipeCategory() == null) {
+            throw new CustomException(ErrorCode.MISSING_REQUIRED_FIELD);
+        }
+
+        UsersInfoEntity user = usersInfoRepository.findById(FIXED_USER_ID)
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
+
+        Boolean isCoffee = isCoffeeCategory(request.getRecipeCategory());
+        String targetRecipeId = String.valueOf(request.getRecipeId());
+        validateRecipeOwnerForUnsave(request.getRecipeId(), isCoffee);
+
+        if (!userRecipeListRepository.existsByUserUserIdAndRecipeIdAndIsCoffee(
+                user.getUserId(),
+                targetRecipeId,
+                isCoffee
+        )) {
+            throw new CustomException(ErrorCode.DATA_NOT_EXIST);
+        }
+
+        userRecipeListRepository.deleteByUserUserIdAndRecipeIdAndIsCoffee(
+                user.getUserId(),
+                targetRecipeId,
+                isCoffee
+        );
+
+        return CoffeeRecipeSaveResponse.of(user.getUserId(), request.getRecipeId(), isCoffee);
+    }
+
+    @Transactional
+    public CoffeeRecipeCustomizeResponse updateCoffeeRecipe(Long recipeId, CoffeeRecipeCustomizeCoffeeRequest request) {
+        validateCoffeeCustomizeRequest(request);
+        validateRecipeEditable(recipeId, true);
+
+        UsersInfoEntity user = usersInfoRepository.findById(FIXED_USER_ID)
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
+
+        CoffeeCapsuleEntity capsule1 = coffeeCapsuleRepository.findById(request.getCapsule1Id())
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
+        CoffeeCapsuleEntity capsule2 = request.getCapsule2Id() == null
+                ? null
+                : coffeeCapsuleRepository.findById(request.getCapsule2Id())
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
+
+        CoffeeRecipeEntity recipe = coffeeRecipeRepository.findById(recipeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
+
+        if (FIXED_USER_ID.equals(recipe.getUser().getUserId())) {
+            recipe.updateRecipe(
+                    request.getRecipeName(),
+                    request.getRecipeCategory(),
+                    capsule1,
+                    capsule2,
+                    request.getCapsuleTemp(),
+                    request.getCapsule1Size(),
+                    request.getCapsule2Size(),
+                    request.getCapsule1Step1(),
+                    request.getCapsule2Step2(),
+                    request.getCapsule1Step3(),
+                    request.getCapsule2Step4(),
+                    request.getAddObj(),
+                    request.getRecipeMemo(),
+                    request.getRecipeLevel()
+            );
+            return CoffeeRecipeCustomizeResponse.from(recipe);
+        }
+
+        CoffeeRecipeEntity copiedRecipe = coffeeRecipeRepository.save(
+                CoffeeRecipeEntity.builder()
+                        .recipeName(recipe.getRecipeName())
+                        .recipeCategory(recipe.getRecipeCategory())
+                        .coffeeCategory(recipe.getCoffeeCategory())
+                        .user(user)
+                        .capsule1(recipe.getCapsule1())
+                        .capsule2(recipe.getCapsule2())
+                        .capsuleTemp(recipe.getCapsuleTemp())
+                        .capsule1Size(recipe.getCapsule1Size())
+                        .capsule2Size(recipe.getCapsule2Size())
+                        .capsule1Step1(recipe.getCapsule1Step1())
+                        .capsule2Step2(recipe.getCapsule2Step2())
+                        .capsule1Step3(recipe.getCapsule1Step3())
+                        .capsule2Step4(recipe.getCapsule2Step4())
+                        .addObj(recipe.getAddObj())
+                        .recipeMemo(recipe.getRecipeMemo())
+                        .isExtract(recipe.getIsExtract())
+                        .originRecipe(recipe.getOriginRecipe())
+                        .recipeLevel(recipe.getRecipeLevel())
+                        .isShared(recipe.getIsShared())
+                        .saveCount(recipe.getSaveCount())
+                        .build()
+        );
+
+        copiedRecipe.updateRecipe(
+                request.getRecipeName(),
+                request.getRecipeCategory(),
+                capsule1,
+                capsule2,
+                request.getCapsuleTemp(),
+                request.getCapsule1Size(),
+                request.getCapsule2Size(),
+                request.getCapsule1Step1(),
+                request.getCapsule2Step2(),
+                request.getCapsule1Step3(),
+                request.getCapsule2Step4(),
+                request.getAddObj(),
+                request.getRecipeMemo(),
+                request.getRecipeLevel()
+        );
+
+        addSavedRecipeReference(copiedRecipe.getRecipeId(), true, user);
+        return CoffeeRecipeCustomizeResponse.from(copiedRecipe);
+    }
+
+    @Transactional
+    public CoffeeRecipeCustomizeResponse updateNoneCoffeeRecipe(Long recipeId, CoffeeRecipeCustomizeNoneCoffeeRequest request) {
+        validateNoneCoffeeCustomizeRequest(request);
+        validateRecipeEditable(recipeId, false);
+
+        UsersInfoEntity user = usersInfoRepository.findById(FIXED_USER_ID)
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
+
+        NoneCoffeeRecipeEntity recipe = noneCoffeeRecipeRepository.findById(recipeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
+
+        if (FIXED_USER_ID.equals(recipe.getUser().getUserId())) {
+            recipe.updateRecipe(
+                    request.getRecipeName(),
+                    request.getRecipeCategory(),
+                    request.getIngredient(),
+                    request.getRecipeContent(),
+                    request.getTotalSize(),
+                    request.getRecipeLevel()
+            );
+            return CoffeeRecipeCustomizeResponse.from(recipe);
+        }
+
+        NoneCoffeeRecipeEntity copiedRecipe = noneCoffeeRecipeRepository.save(
+                NoneCoffeeRecipeEntity.builder()
+                        .user(user)
+                        .recipeName(recipe.getRecipeName())
+                        .recipeCategory(recipe.getRecipeCategory())
+                        .ingredient(recipe.getIngredient())
+                        .recipeContent(recipe.getRecipeContent())
+                        .totalSize(recipe.getTotalSize())
+                        .originRecipe(recipe.getOriginRecipe())
+                        .recipeLevel(recipe.getRecipeLevel())
+                        .isShared(recipe.getIsShared())
+                        .saveCount(recipe.getSaveCount())
+                        .build()
+        );
+
+        copiedRecipe.updateRecipe(
+                request.getRecipeName(),
+                request.getRecipeCategory(),
+                request.getIngredient(),
+                request.getRecipeContent(),
+                request.getTotalSize(),
+                request.getRecipeLevel()
+        );
+
+        addSavedRecipeReference(copiedRecipe.getRecipeId(), false, user);
+        return CoffeeRecipeCustomizeResponse.from(copiedRecipe);
+    }
+
+    @Transactional
+    public void deleteOwnRecipe(Long recipeId, RecipeCategory recipeCategory) {
+        if (recipeId == null || recipeCategory == null) {
+            throw new CustomException(ErrorCode.MISSING_REQUIRED_FIELD);
+        }
+
+        Boolean isCoffee = isCoffeeCategory(recipeCategory);
+        String targetRecipeId = String.valueOf(recipeId);
+
+        if (Boolean.TRUE.equals(isCoffee)) {
+            CoffeeRecipeEntity recipe = coffeeRecipeRepository.findById(recipeId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
+
+            if (!FIXED_USER_ID.equals(recipe.getUser().getUserId())) {
+                throw new CustomException(ErrorCode.INVALID_PARAMETER, "내가 만든 레시피만 삭제할 수 있습니다.");
+            }
+
+            userRecipeListRepository.deleteAllByRecipeIdAndIsCoffee(targetRecipeId, true);
+            coffeeRecipeRepository.delete(recipe);
+            return;
+        }
+
+        NoneCoffeeRecipeEntity recipe = noneCoffeeRecipeRepository.findById(recipeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
+
+        if (!FIXED_USER_ID.equals(recipe.getUser().getUserId())) {
+            throw new CustomException(ErrorCode.INVALID_PARAMETER, "내가 만든 레시피만 삭제할 수 있습니다.");
+        }
+
+        userRecipeListRepository.deleteAllByRecipeIdAndIsCoffee(targetRecipeId, false);
+        noneCoffeeRecipeRepository.delete(recipe);
+    }
+
+    @Transactional
     public CoffeeRecipeCustomizeResponse customizeCoffeeRecipe(CoffeeRecipeCustomizeCoffeeRequest request) {
         UsersInfoEntity user = usersInfoRepository.findById(FIXED_USER_ID)
                 .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST));
@@ -341,6 +539,36 @@ public class CoffeeRecipeService {
                         .isCoffee(isCoffee)
                         .build()
         );
+    }
+
+    private void validateRecipeEditable(Long recipeId, Boolean isCoffee) {
+        validateRecipeExists(recipeId, isCoffee);
+
+        if (!userRecipeListRepository.existsByUserUserIdAndRecipeIdAndIsCoffee(
+                FIXED_USER_ID,
+                String.valueOf(recipeId),
+                isCoffee
+        )) {
+            throw new CustomException(ErrorCode.INVALID_PARAMETER, "저장한 레시피만 수정할 수 있습니다.");
+        }
+    }
+
+    private void addSavedRecipeReference(Long newRecipeId, Boolean isCoffee, UsersInfoEntity user) {
+        saveUserRecipeList(user, newRecipeId, isCoffee);
+    }
+
+    private void validateRecipeOwnerForUnsave(Long recipeId, Boolean isCoffee) {
+        Long ownerUserId = Boolean.TRUE.equals(isCoffee)
+                ? coffeeRecipeRepository.findById(recipeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST))
+                .getUser().getUserId()
+                : noneCoffeeRecipeRepository.findById(recipeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_EXIST))
+                .getUser().getUserId();
+
+        if (FIXED_USER_ID.equals(ownerUserId)) {
+            throw new CustomException(ErrorCode.INVALID_PARAMETER, "내가 만든 레시피는 저장 취소할 수 없습니다.");
+        }
     }
 
     private boolean isCoffeeCategory(RecipeCategory recipeCategory) {

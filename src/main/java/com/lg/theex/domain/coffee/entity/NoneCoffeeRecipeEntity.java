@@ -80,6 +80,22 @@ public class NoneCoffeeRecipeEntity {
         this.isShared = !this.isShared;
     }
 
+    public void updateRecipe(
+            String recipeName,
+            RecipeCategory recipeCategory,
+            String ingredient,
+            String recipeContent,
+            Integer totalSize,
+            RecipeLevel recipeLevel
+    ) {
+        this.recipeName = recipeName;
+        this.recipeCategory = recipeCategory;
+        this.ingredient = ingredient;
+        this.recipeContent = recipeContent;
+        this.totalSize = totalSize;
+        this.recipeLevel = recipeLevel;
+    }
+
     public void assignOriginRecipeToSelf() {
         this.originRecipe = this;
     }

@@ -55,8 +55,20 @@ public class MoodCustomEntity {
         this.saveCount = saveCount;
     }
 
-    public void share() {
-        this.isShared = true;
+    public void toggleShared() {
+        this.isShared = !this.isShared;
+    }
+
+    public void updateMood(
+            MoodColorsetEntity colorsetId,
+            String moodName,
+            String moodMemo,
+            String customProduct
+    ) {
+        this.colorsetId = colorsetId;
+        this.moodName = moodName;
+        this.moodMemo = moodMemo;
+        this.customProduct = customProduct;
     }
 
     public void increaseSaveCount() {

@@ -78,6 +78,62 @@ public class MoodCustomService {
     }
 
     @Transactional
+    public Long updateMoodCustom(Long moodId, MoodCustomRequestDTO requestDTO) {
+        if (!moodColorsetRepository.existsById(requestDTO.colorsetId())) {
+            throw new BadRequestException(ErrorCode.DATA_NOT_EXIST, "존재하지 않는 색상셋입니다.");
+        }
+
+        if (!userMoodListRepository.existsByUserUserIdAndMoodMoodId(DEMO_USER_ID, moodId)) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "저장한 무드만 수정할 수 있습니다.");
+        }
+
+        MoodCustomEntity moodCustom = moodCustomRepository.findById(moodId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.DATA_NOT_EXIST, "존재하지 않는 무드입니다."));
+
+        UsersInfoEntity user = entityManager.getReference(UsersInfoEntity.class, DEMO_USER_ID);
+        MoodColorsetEntity colorset = entityManager.getReference(MoodColorsetEntity.class, requestDTO.colorsetId());
+
+        String customProductJson;
+        try {
+            customProductJson = objectMapper.writeValueAsString(requestDTO.customProduct());
+        } catch (JsonProcessingException e) {
+            throw new BadRequestException(ErrorCode.INVALID_FORMAT, "커스텀 제품 정보 형식이 올바르지 않습니다.");
+        }
+
+        if (DEMO_USER_ID.equals(moodCustom.getUserId().getUserId())) {
+            moodCustom.updateMood(
+                    colorset,
+                    requestDTO.moodName(),
+                    requestDTO.moodMemo(),
+                    customProductJson
+            );
+            return moodCustom.getMoodId();
+        }
+
+        MoodCustomEntity copiedMoodCustom = moodCustomRepository.save(
+                MoodCustomEntity.builder()
+                        .userId(user)
+                        .colorsetId(moodCustom.getColorsetId())
+                        .moodName(moodCustom.getMoodName())
+                        .moodMemo(moodCustom.getMoodMemo())
+                        .customProduct(moodCustom.getCustomProduct())
+                        .isShared(moodCustom.getIsShared())
+                        .saveCount(moodCustom.getSaveCount())
+                        .build()
+        );
+
+        copiedMoodCustom.updateMood(
+                colorset,
+                requestDTO.moodName(),
+                requestDTO.moodMemo(),
+                customProductJson
+        );
+
+        saveMoodToUserList(copiedMoodCustom.getMoodId());
+        return copiedMoodCustom.getMoodId();
+    }
+
+    @Transactional
     public Long shareMoodCustom(Long moodId) {
         if (!moodCustomRepository.existsByMoodIdAndUserIdUserId(moodId, DEMO_USER_ID)) {
             throw new BadRequestException(ErrorCode.DATA_NOT_EXIST, "존재하지 않는 무드입니다.");
@@ -86,7 +142,7 @@ public class MoodCustomService {
         MoodCustomEntity moodCustom = moodCustomRepository.findById(moodId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.DATA_NOT_EXIST, "존재하지 않는 무드입니다."));
 
-        moodCustom.share();
+        moodCustom.toggleShared();
         return moodCustom.getMoodId();
     }
 
@@ -112,6 +168,37 @@ public class MoodCustomService {
 
         saveMoodToUserList(moodId);
         moodCustom.increaseSaveCount();
+        return moodId;
+    }
+
+    @Transactional
+    public Long unsaveMoodCustom(Long moodId) {
+        MoodCustomEntity moodCustom = moodCustomRepository.findById(moodId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.DATA_NOT_EXIST, "존재하지 않는 무드입니다."));
+
+        if (DEMO_USER_ID.equals(moodCustom.getUserId().getUserId())) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "내가 만든 무드는 저장 취소할 수 없습니다.");
+        }
+
+        if (!userMoodListRepository.existsByUserUserIdAndMoodMoodId(DEMO_USER_ID, moodId)) {
+            throw new BadRequestException(ErrorCode.DATA_NOT_EXIST, "저장된 무드가 존재하지 않습니다.");
+        }
+
+        userMoodListRepository.deleteByUserUserIdAndMoodMoodId(DEMO_USER_ID, moodId);
+        return moodId;
+    }
+
+    @Transactional
+    public Long deleteOwnMoodCustom(Long moodId) {
+        MoodCustomEntity moodCustom = moodCustomRepository.findById(moodId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.DATA_NOT_EXIST, "존재하지 않는 무드입니다."));
+
+        if (!DEMO_USER_ID.equals(moodCustom.getUserId().getUserId())) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "내가 만든 무드만 삭제할 수 있습니다.");
+        }
+
+        userMoodListRepository.deleteAllByMoodMoodId(moodId);
+        moodCustomRepository.delete(moodCustom);
         return moodId;
     }
 

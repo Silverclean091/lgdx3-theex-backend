@@ -8,4 +8,6 @@ import java.util.List;
 public interface UserRecipeListRepository extends JpaRepository<UserRecipeListEntity, Long> {
     List<UserRecipeListEntity> findAllByUserUserId(Long userId);
     boolean existsByUserUserIdAndRecipeIdAndIsCoffee(Long userId, String recipeId, Boolean isCoffee);
+    void deleteByUserUserIdAndRecipeIdAndIsCoffee(Long userId, String recipeId, Boolean isCoffee);
+    void deleteAllByRecipeIdAndIsCoffee(String recipeId, Boolean isCoffee);
 }
