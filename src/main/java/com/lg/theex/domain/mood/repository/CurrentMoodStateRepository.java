@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface CurrentMoodStateRepository extends JpaRepository<CurrentMoodStateEntity, Long> {
     Optional<CurrentMoodStateEntity> findTopByOrderByStateIdDesc();
+    void deleteAllByMoodMoodId(Long moodId);
 }

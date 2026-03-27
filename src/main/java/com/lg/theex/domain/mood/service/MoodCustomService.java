@@ -19,6 +19,7 @@ import com.lg.theex.domain.mood.entity.MoodColorsetEntity;
 import com.lg.theex.domain.mood.entity.MoodCustomEntity;
 import com.lg.theex.domain.mood.entity.SpeakerCustomEntity;
 import com.lg.theex.domain.mood.repository.CoffeeCustomRepository;
+import com.lg.theex.domain.mood.repository.CurrentMoodStateRepository;
 import com.lg.theex.domain.mood.repository.LightCustomRepository;
 import com.lg.theex.domain.mood.repository.MoodColorsetRepository;
 import com.lg.theex.domain.mood.repository.MoodCustomRepository;
@@ -42,6 +43,7 @@ public class MoodCustomService {
     private final LightCustomRepository lightCustomRepository;
     private final SpeakerCustomRepository speakerCustomRepository;
     private final CoffeeCustomRepository coffeeCustomRepository;
+    private final CurrentMoodStateRepository currentMoodStateRepository;
     private final UserMoodListRepository userMoodListRepository;
     private final EntityManager entityManager;
     private final ObjectMapper objectMapper;
@@ -197,6 +199,7 @@ public class MoodCustomService {
             throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "내가 만든 무드만 삭제할 수 있습니다.");
         }
 
+        currentMoodStateRepository.deleteAllByMoodMoodId(moodId);
         userMoodListRepository.deleteAllByMoodMoodId(moodId);
         moodCustomRepository.delete(moodCustom);
         return moodId;
