@@ -31,9 +31,9 @@ public enum MusicType {
         return switch (this) {
             case CAFEBGM -> 1;
             case ACOUSTIC -> 2;
-            case KPOP -> 3;
-            case JAZZ -> 4;
-            case CLASSICAL -> 5;
+            case JAZZ -> 3;
+            case CLASSICAL -> 4;
+            case KPOP -> 5;
             case CHILL -> 6;
             case MUSICAL -> 7;
         };
