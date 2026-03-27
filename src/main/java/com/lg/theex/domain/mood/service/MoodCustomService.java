@@ -199,8 +199,8 @@ public class MoodCustomService {
             throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "내가 만든 무드만 삭제할 수 있습니다.");
         }
 
-        currentMoodStateRepository.deleteAllByMoodMoodId(moodId);
-        userMoodListRepository.deleteAllByMoodMoodId(moodId);
+        currentMoodStateRepository.deleteAllByMoodId(moodId);
+        userMoodListRepository.deleteAllByMoodId(moodId);
         moodCustomRepository.delete(moodCustom);
         return moodId;
     }
